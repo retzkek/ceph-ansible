@@ -28,6 +28,34 @@
     group: root
     mode: 0750
 
+- name: get pool list
+  command: "{{ ceph_cmd }} --cluster {{ cluster }} osd dump -f json"
+  register: pool_list
+  delegate_to: "{{ groups.get(mon_group_name, [])[0] }}"
+  run_once: true
+  changed_when: false
+
+- name: set_fact pools_pgautoscaler_mode
+  set_fact:
+    pools_pgautoscaler_mode: "{{ pools_pgautoscaler_mode | default([]) | union([{'name': item.pool_name, 'mode': item.pg_autoscale_mode}]) }}"
+  run_once: true
+  with_items: "{{ (pool_list.stdout | from_json)['pools'] }}"
+
+- name: disable pg autoscale on pools
+  ceph_pool:
+    name: "{{ item.name }}"
+    cluster: "{{ cluster }}"
+    pg_autoscale_mode: false
+  with_items: "{{ pools_pgautoscaler_mode }}"
+  delegate_to: "{{ groups.get(mon_group_name, [])[0] }}"
+  run_once: true
+  when:
+    - pools_pgautoscaler_mode is defined
+    - item.mode == 'on'
+  environment:
+    CEPH_CONTAINER_IMAGE: "{{ ceph_docker_registry + '/' + ceph_docker_image + ':' + ceph_docker_image_tag if containerized_deployment | bool else None }}"
+    CEPH_CONTAINER_BINARY: "{{ container_binary }}"
+
 - name: restart ceph osds daemon(s)
   command: /usr/bin/env bash {{ hostvars[item]['tmpdirpath']['path'] }}/restart_osd_daemon.sh
   when:
@@ -41,3 +69,18 @@
 - name: set _osd_handler_called after restart
   set_fact:
     _osd_handler_called: False
+
+- name: re-enable pg autoscale on pools
+  ceph_pool:
+    name: "{{ item.name }}"
+    cluster: "{{ cluster }}"
+    pg_autoscale_mode: true
+  with_items: "{{ pools_pgautoscaler_mode }}"
+  run_once: true
+  delegate_to: "{{ groups.get(mon_group_name, [])[0] }}"
+  when:
+    - pools_pgautoscaler_mode is defined
+    - item.mode == 'on'
+  environment:
+    CEPH_CONTAINER_IMAGE: "{{ ceph_docker_registry + '/' + ceph_docker_image + ':' + ceph_docker_image_tag if containerized_deployment | bool else None }}"
+    CEPH_CONTAINER_BINARY: "{{ container_binary }}"

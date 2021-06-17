@@ -173,7 +173,9 @@ def create_realm(module, container_image=None):
     if default:
         args.append('--default')
 
-    cmd = generate_radosgw_cmd(cluster=cluster, args=args, container_image=container_image)
+    cmd = generate_radosgw_cmd(cluster=cluster,
+                               args=args,
+                               container_image=container_image)
 
     return cmd
 
@@ -188,7 +190,9 @@ def get_realm(module, container_image=None):
 
     args = ['get', '--rgw-realm=' + name, '--format=json']
 
-    cmd = generate_radosgw_cmd(cluster=cluster, args=args, container_image=container_image)
+    cmd = generate_radosgw_cmd(cluster=cluster,
+                               args=args,
+                               container_image=container_image)
 
     return cmd
 
@@ -203,11 +207,42 @@ def remove_realm(module, container_image=None):
 
     args = ['delete', '--rgw-realm=' + name]
 
-    cmd = generate_radosgw_cmd(cluster=cluster, args=args, container_image=container_image)
+    cmd = generate_radosgw_cmd(cluster=cluster,
+                               args=args,
+                               container_image=container_image)
 
     return cmd
 
 
+<<<<<<< HEAD
+=======
+def pull_realm(module, container_image=None):
+    '''
+    Pull a realm
+    '''
+
+    cluster = module.params.get('cluster')
+    name = module.params.get('name')
+    url = module.params.get('url')
+    access_key = module.params.get('access_key')
+    secret_key = module.params.get('secret_key')
+
+    args = [
+        'pull',
+        '--rgw-realm=' + name,
+        '--url=' + url,
+        '--access-key=' + access_key,
+        '--secret=' + secret_key
+    ]
+
+    cmd = generate_radosgw_cmd(cluster=cluster,
+                               args=args,
+                               container_image=container_image)
+
+    return cmd
+
+
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 def exit_module(module, out, rc, cmd, err, startd, changed=False):
     endd = datetime.datetime.now()
     delta = endd - startd
@@ -229,7 +264,11 @@ def run_module():
     module_args = dict(
         cluster=dict(type='str', required=False, default='ceph'),
         name=dict(type='str', required=True),
+<<<<<<< HEAD
         state=dict(type='str', required=False, choices=['present', 'absent', 'info'], default='present'),
+=======
+        state=dict(type='str', required=False, choices=['present', 'absent', 'info', 'pull'], default='present'),  # noqa: E501
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
         default=dict(type='bool', required=False, default=False),
     )
 
@@ -260,24 +299,31 @@ def run_module():
     container_image = is_containerized()
 
     if state == "present":
-        rc, cmd, out, err = exec_commands(module, get_realm(module, container_image=container_image))
+        rc, cmd, out, err = exec_commands(module, get_realm(module, container_image=container_image))  # noqa: E501
         if rc != 0:
-            rc, cmd, out, err = exec_commands(module, create_realm(module, container_image=container_image))
+            rc, cmd, out, err = exec_commands(module, create_realm(module, container_image=container_image))  # noqa: E501
             changed = True
 
     elif state == "absent":
-        rc, cmd, out, err = exec_commands(module, get_realm(module, container_image=container_image))
+        rc, cmd, out, err = exec_commands(module, get_realm(module, container_image=container_image))  # noqa: E501
         if rc == 0:
-            rc, cmd, out, err = exec_commands(module, remove_realm(module, container_image=container_image))
+            rc, cmd, out, err = exec_commands(module, remove_realm(module, container_image=container_image))  # noqa: E501
             changed = True
         else:
             rc = 0
             out = "Realm {} doesn't exist".format(name)
 
     elif state == "info":
-        rc, cmd, out, err = exec_commands(module, get_realm(module, container_image=container_image))
+        rc, cmd, out, err = exec_commands(module, get_realm(module, container_image=container_image))  # noqa: E501
 
+<<<<<<< HEAD
     exit_module(module=module, out=out, rc=rc, cmd=cmd, err=err, startd=startd, changed=changed)
+=======
+    elif state == "pull":
+        rc, cmd, out, err = exec_commands(module, pull_realm(module, container_image=container_image))  # noqa: E501
+
+    exit_module(module=module, out=out, rc=rc, cmd=cmd, err=err, startd=startd, changed=changed)  # noqa: E501
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
 
 def main():

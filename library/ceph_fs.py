@@ -181,7 +181,14 @@ def create_fs(module, container_image=None):
 
     args = ['new', name, metadata, data]
 
+<<<<<<< HEAD
     cmd = generate_ceph_cmd(cluster=cluster, args=args, container_image=container_image)
+=======
+    cmd = generate_ceph_cmd(sub_cmd=['fs'],
+                            args=args,
+                            cluster=cluster,
+                            container_image=container_image)
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
     return cmd
 
@@ -196,7 +203,14 @@ def get_fs(module, container_image=None):
 
     args = ['get', name, '--format=json']
 
+<<<<<<< HEAD
     cmd = generate_ceph_cmd(cluster=cluster, args=args, container_image=container_image)
+=======
+    cmd = generate_ceph_cmd(sub_cmd=['fs'],
+                            args=args,
+                            cluster=cluster,
+                            container_image=container_image)
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
     return cmd
 
@@ -211,7 +225,14 @@ def remove_fs(module, container_image=None):
 
     args = ['rm', name, '--yes-i-really-mean-it']
 
+<<<<<<< HEAD
     cmd = generate_ceph_cmd(cluster=cluster, args=args, container_image=container_image)
+=======
+    cmd = generate_ceph_cmd(sub_cmd=['fs'],
+                            args=args,
+                            cluster=cluster,
+                            container_image=container_image)
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
     return cmd
 
@@ -226,7 +247,14 @@ def fail_fs(module, container_image=None):
 
     args = ['fail', name]
 
+<<<<<<< HEAD
     cmd = generate_ceph_cmd(cluster=cluster, args=args, container_image=container_image)
+=======
+    cmd = generate_ceph_cmd(sub_cmd=['fs'],
+                            args=args,
+                            cluster=cluster,
+                            container_image=container_image)
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
     return cmd
 
@@ -242,7 +270,14 @@ def set_fs(module, container_image=None):
 
     args = ['set', name, 'max_mds', str(max_mds)]
 
+<<<<<<< HEAD
     cmd = generate_ceph_cmd(cluster=cluster, args=args, container_image=container_image)
+=======
+    cmd = generate_ceph_cmd(sub_cmd=['fs'],
+                            args=args,
+                            cluster=cluster,
+                            container_image=container_image)
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
     return cmd
 
@@ -268,7 +303,7 @@ def run_module():
     module_args = dict(
         cluster=dict(type='str', required=False, default='ceph'),
         name=dict(type='str', required=True),
-        state=dict(type='str', required=False, choices=['present', 'absent', 'info'], default='present'),
+        state=dict(type='str', required=False, choices=['present', 'absent', 'info'], default='present'),  # noqa: E501
         data=dict(type='str', required=False),
         metadata=dict(type='str', required=False),
         max_mds=dict(type='int', required=False),
@@ -303,6 +338,7 @@ def run_module():
     container_image = is_containerized()
 
     if state == "present":
+<<<<<<< HEAD
         rc, cmd, out, err = exec_commands(module, get_fs(module, container_image=container_image))
         if rc == 0:
             fs = json.loads(out)
@@ -314,14 +350,34 @@ def run_module():
             rc, cmd, out, err = exec_commands(module, create_fs(module, container_image=container_image))
             if max_mds and max_mds > 1:
                 exec_commands(module, set_fs(module, container_image=container_image))
+=======
+        rc, cmd, out, err = exec_command(module, get_fs(module, container_image=container_image))  # noqa: E501
+        if rc == 0:
+            fs = json.loads(out)
+            if max_mds and fs["mdsmap"]["max_mds"] != max_mds:
+                rc, cmd, out, err = exec_command(module, set_fs(module, container_image=container_image))  # noqa: E501
+                if rc == 0:
+                    changed = True
+        else:
+            rc, cmd, out, err = exec_command(module, create_fs(module, container_image=container_image))  # noqa: E501
+            if max_mds and max_mds > 1:
+                exec_command(module, set_fs(module, container_image=container_image))  # noqa: E501
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
             if rc == 0:
                 changed = True
 
     elif state == "absent":
+<<<<<<< HEAD
         rc, cmd, out, err = exec_commands(module, get_fs(module, container_image=container_image))
         if rc == 0:
             exec_commands(module, fail_fs(module, container_image=container_image))
             rc, cmd, out, err = exec_commands(module, remove_fs(module, container_image=container_image))
+=======
+        rc, cmd, out, err = exec_command(module, get_fs(module, container_image=container_image))  # noqa: E501
+        if rc == 0:
+            exec_command(module, fail_fs(module, container_image=container_image))  # noqa: E501
+            rc, cmd, out, err = exec_command(module, remove_fs(module, container_image=container_image))  # noqa: E501
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
             if rc == 0:
                 changed = True
         else:
@@ -329,9 +385,13 @@ def run_module():
             out = "Ceph File System {} doesn't exist".format(name)
 
     elif state == "info":
+<<<<<<< HEAD
         rc, cmd, out, err = exec_commands(module, get_fs(module, container_image=container_image))
+=======
+        rc, cmd, out, err = exec_command(module, get_fs(module, container_image=container_image))  # noqa: E501
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
-    exit_module(module=module, out=out, rc=rc, cmd=cmd, err=err, startd=startd, changed=changed)
+    exit_module(module=module, out=out, rc=rc, cmd=cmd, err=err, startd=startd, changed=changed)  # noqa: E501
 
 
 def main():

@@ -15,6 +15,21 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+<<<<<<< HEAD
+=======
+from ansible.module_utils.basic import AnsibleModule
+try:
+    from ansible.module_utils.ca_common import generate_ceph_cmd, \
+                                               is_containerized, \
+                                               exec_command, \
+                                               exit_module
+except ImportError:
+    from module_utils.ca_common import generate_ceph_cmd, is_containerized, exec_command, exit_module  # noqa: E501
+
+import datetime
+import json
+
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
@@ -202,7 +217,15 @@ def create_user(module, container_image=None):
         password = module.params.get('password')
         args = ['ac-user-create', name, password]
 
+<<<<<<< HEAD
     cmd = generate_ceph_cmd(cluster=cluster, args=args, container_image=container_image, interactive=interactive)
+=======
+    cmd = generate_ceph_cmd(sub_cmd=['dashboard'],
+                            args=args,
+                            cluster=cluster,
+                            container_image=container_image,
+                            interactive=True)
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
     return cmd
 
@@ -220,7 +243,14 @@ def set_roles(module, container_image=None):
 
     args.extend(roles)
 
+<<<<<<< HEAD
     cmd = generate_ceph_cmd(cluster=cluster, args=args, container_image=container_image)
+=======
+    cmd = generate_ceph_cmd(sub_cmd=['dashboard'],
+                            args=args,
+                            cluster=cluster,
+                            container_image=container_image)
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
     return cmd
 
@@ -240,7 +270,15 @@ def set_password(module, container_image=None):
         password = module.params.get('password')
         args = ['ac-user-set-password', name, password]
 
+<<<<<<< HEAD
     cmd = generate_ceph_cmd(cluster=cluster, args=args, container_image=container_image, interactive=interactive)
+=======
+    cmd = generate_ceph_cmd(sub_cmd=['dashboard'],
+                            args=args,
+                            cluster=cluster,
+                            container_image=container_image,
+                            interactive=True)
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
     return cmd
 
@@ -255,7 +293,14 @@ def get_user(module, container_image=None):
 
     args = ['ac-user-show', name, '--format=json']
 
+<<<<<<< HEAD
     cmd = generate_ceph_cmd(cluster=cluster, args=args, container_image=container_image)
+=======
+    cmd = generate_ceph_cmd(sub_cmd=['dashboard'],
+                            args=args,
+                            cluster=cluster,
+                            container_image=container_image)
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
     return cmd
 
@@ -270,7 +315,14 @@ def remove_user(module, container_image=None):
 
     args = ['ac-user-delete', name]
 
+<<<<<<< HEAD
     cmd = generate_ceph_cmd(cluster=cluster, args=args, container_image=container_image)
+=======
+    cmd = generate_ceph_cmd(sub_cmd=['dashboard'],
+                            args=args,
+                            cluster=cluster,
+                            container_image=container_image)
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
     return cmd
 
@@ -296,11 +348,11 @@ def run_module():
     module_args = dict(
         cluster=dict(type='str', required=False, default='ceph'),
         name=dict(type='str', required=True),
-        state=dict(type='str', required=False, choices=['present', 'absent', 'info'], default='present'),
+        state=dict(type='str', required=False, choices=['present', 'absent', 'info'], default='present'),  # noqa: E501
         password=dict(type='str', required=False, no_log=True),
         roles=dict(type='list',
                    required=False,
-                   choices=['administrator', 'read-only', 'block-manager', 'rgw-manager', 'cluster-manager', 'pool-manager', 'cephfs-manager'],
+                   choices=['administrator', 'read-only', 'block-manager', 'rgw-manager', 'cluster-manager', 'pool-manager', 'cephfs-manager'],  # noqa: E501
                    default=[]),
         interactive=dict(type='bool', required=False, default=True),
     )
@@ -336,15 +388,20 @@ def run_module():
     container_image = is_containerized()
 
     if state == "present":
+<<<<<<< HEAD
         rc, cmd, out, err = exec_commands(module, get_user(module, container_image=container_image))
         stdin = password
         if not interactive:
             stdin = None
+=======
+        rc, cmd, out, err = exec_command(module, get_user(module, container_image=container_image))  # noqa: E501
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
         if rc == 0:
             user = json.loads(out)
             user['roles'].sort()
             roles.sort()
             if user['roles'] != roles:
+<<<<<<< HEAD
                 rc, cmd, out, err = exec_commands(module, set_roles(module, container_image=container_image))
                 changed = True
             rc, cmd, out, err = exec_commands(module, set_password(module, container_image=container_image), stdin=stdin)
@@ -357,15 +414,33 @@ def run_module():
         rc, cmd, out, err = exec_commands(module, get_user(module, container_image=container_image))
         if rc == 0:
             rc, cmd, out, err = exec_commands(module, remove_user(module, container_image=container_image))
+=======
+                rc, cmd, out, err = exec_command(module, set_roles(module, container_image=container_image))  # noqa: E501
+                changed = True
+            rc, cmd, out, err = exec_command(module, set_password(module, container_image=container_image), stdin=password)  # noqa: E501
+        else:
+            rc, cmd, out, err = exec_command(module, create_user(module, container_image=container_image), stdin=password)  # noqa: E501
+            rc, cmd, out, err = exec_command(module, set_roles(module, container_image=container_image))  # noqa: E501
+            changed = True
+
+    elif state == "absent":
+        rc, cmd, out, err = exec_command(module, get_user(module, container_image=container_image))  # noqa: E501
+        if rc == 0:
+            rc, cmd, out, err = exec_command(module, remove_user(module, container_image=container_image))  # noqa: E501
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
             changed = True
         else:
             rc = 0
             out = "Dashboard User {} doesn't exist".format(name)
 
     elif state == "info":
+<<<<<<< HEAD
         rc, cmd, out, err = exec_commands(module, get_user(module, container_image=container_image))
+=======
+        rc, cmd, out, err = exec_command(module, get_user(module, container_image=container_image))  # noqa: E501
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 
-    exit_module(module=module, out=out, rc=rc, cmd=cmd, err=err, startd=startd, changed=changed)
+    exit_module(module=module, out=out, rc=rc, cmd=cmd, err=err, startd=startd, changed=changed)  # noqa: E501
 
 
 def main():

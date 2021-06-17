@@ -77,6 +77,26 @@ options:
             - Manage firewall rules with firewalld.
         required: false
         default: true
+<<<<<<< HEAD
+=======
+    registry_url:
+        description:
+            - URL for custom registry.
+        required: false
+    registry_username:
+        description:
+            - Username for custom registry.
+        required: false
+    registry_password:
+        description:
+            - Password for custom registry.
+        required: false
+    registry_json:
+        description:
+            - JSON file with custom registry login info (URL,
+              username, password).
+        required: false
+>>>>>>> beda1fe7 (library: flake8 ceph-ansible modules)
 author:
     - Dimitri Savineau <dsavinea@redhat.com>
 '''

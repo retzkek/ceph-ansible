@@ -267,7 +267,7 @@
 
     - name: open dashboard ports
       include_tasks: dashboard_firewall.yml
-      when: dashboard_enabled | bool
+      when: (dashboard_enabled | bool or prometheus_exporters_enabled | bool)
 
     - name: open ceph networks on haproxy
       firewalld:
